@@ -2,6 +2,8 @@ package com.mynorsanchez.kinalapp.service;
 
 import com.mynorsanchez.kinalapp.entity.DetalleVenta;
 import com.mynorsanchez.kinalapp.repository.DetalleVentaRepository;
+import jakarta.persistence.EntityManager;
+import jakarta.persistence.PersistenceContext;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -13,6 +15,9 @@ import java.util.Optional;
 public class DetalleVentaService implements IDetalleVentaService {
 
     private final DetalleVentaRepository detalleVentaRepository;
+
+    @PersistenceContext
+    private EntityManager entityManager;
 
     public DetalleVentaService(DetalleVentaRepository detalleVentaRepository) {
         this.detalleVentaRepository = detalleVentaRepository;
@@ -27,6 +32,12 @@ public class DetalleVentaService implements IDetalleVentaService {
     @Override
     public DetalleVenta guardar(DetalleVenta detalleVenta) {
         validarDetalleVenta(detalleVenta);
+        if (detalleVenta.getProducto() != null && detalleVenta.getProducto().getCodigoProducto() != null) {
+            detalleVenta.setProducto(entityManager.merge(detalleVenta.getProducto()));
+        }
+        if (detalleVenta.getVenta() != null && detalleVenta.getVenta().getCodigoVenta() != null) {
+            detalleVenta.setVenta(entityManager.merge(detalleVenta.getVenta()));
+        }
         return detalleVentaRepository.save(detalleVenta);
     }
 
@@ -43,6 +54,12 @@ public class DetalleVentaService implements IDetalleVentaService {
         }
         detalleVenta.setCodigoDetalleVenta(codigoDetalleVenta);
         validarDetalleVenta(detalleVenta);
+        if (detalleVenta.getProducto() != null && detalleVenta.getProducto().getCodigoProducto() != null) {
+            detalleVenta.setProducto(entityManager.merge(detalleVenta.getProducto()));
+        }
+        if (detalleVenta.getVenta() != null && detalleVenta.getVenta().getCodigoVenta() != null) {
+            detalleVenta.setVenta(entityManager.merge(detalleVenta.getVenta()));
+        }
         return detalleVentaRepository.save(detalleVenta);
     }
 
