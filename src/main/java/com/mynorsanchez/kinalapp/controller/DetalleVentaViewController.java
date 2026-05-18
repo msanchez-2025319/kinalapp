@@ -38,8 +38,15 @@ public class DetalleVentaViewController {
     }
 
     @PostMapping("/guardar")
-    public String guardar(@ModelAttribute DetalleVenta detalle, RedirectAttributes redirectAttributes) {
+    public String guardar(@ModelAttribute DetalleVenta detalle,
+                          @RequestParam("producto.codigoProducto") Long codigoProducto,
+                          @RequestParam("venta.codigoVenta") Long codigoVenta,
+                          RedirectAttributes redirectAttributes) {
         try {
+            productoService.buscarPorCodigoProducto(codigoProducto)
+                    .ifPresent(detalle::setProducto);
+            ventaService.buscarPorCodigoVenta(codigoVenta)
+                    .ifPresent(detalle::setVenta);
             detalleVentaService.guardar(detalle);
             redirectAttributes.addFlashAttribute("exito", "Detalle guardado correctamente.");
         } catch (IllegalArgumentException e) {
@@ -68,12 +75,20 @@ public class DetalleVentaViewController {
     }
 
     @PostMapping("/actualizar/{id}")
-    public String actualizar(@PathVariable Long id, @ModelAttribute DetalleVenta detalle, RedirectAttributes redirectAttributes) {
+    public String actualizar(@PathVariable Long id,
+                             @ModelAttribute DetalleVenta detalle,
+                             @RequestParam("producto.codigoProducto") Long codigoProducto,
+                             @RequestParam("venta.codigoVenta") Long codigoVenta,
+                             RedirectAttributes redirectAttributes) {
         try {
             if (!detalleVentaService.existePorCodigoDetalleVenta(id)) {
                 redirectAttributes.addFlashAttribute("error", "Detalle no encontrado.");
                 return "redirect:/vista/detalle-venta";
             }
+            productoService.buscarPorCodigoProducto(codigoProducto)
+                    .ifPresent(detalle::setProducto);
+            ventaService.buscarPorCodigoVenta(codigoVenta)
+                    .ifPresent(detalle::setVenta);
             detalleVentaService.actualizar(id, detalle);
             redirectAttributes.addFlashAttribute("exito", "Detalle actualizado correctamente.");
         } catch (IllegalArgumentException e) {
